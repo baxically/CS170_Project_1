@@ -9,13 +9,81 @@ import math
 
 #Node Class
 class node():
-    #Initializer
-    def __init__(self):
-        self.state = []
-        self.parent = None
-        self.weight = 0
-        self.depth = 0
+    def __init__(self, state, parent, weight, depth, heuristic):
+        self.state = state
+        self.parent = parent
+        #f(n) = g(n) + h(n)
+        self.weight = weight #Weight = f(n)
+        self.depth = depth #Depth = g(n)
+        self.heuristic = heuristic #Heuristic = h(n)
         
+        self.moveUp = None
+        self.moveDown = None
+        self.moveRight = None
+        self.moveLeft = None 
+        
+    #If moving up is valid, need to get the lower value
+    def tryMoveUp(self):
+        zeroIndex = [i[0] for i in np.where(self.state == 0)]
+        if zeroIndex[0] == 2:
+            return False
+        else:
+            lowerVal = self.state[zeroIndex[0] + 1, zeroIndex[1]]
+            newState = self.state.copy()
+            newState[zeroIndex[0], zeroIndex[1]] = lowerVal
+            newState[zeroIndex[0], zeroIndex[1] - 1] = 0
+            return newState, lowerVal
+        
+    #If moving down is valid, need to get the upper value
+    def tryMoveDown(self):
+        zeroIndex = [i[0] for i in np.where(self.state == 0)]
+        #print(zeroIndex)
+        if zeroIndex[0] == 0:
+            return False
+        else:
+            #print(zeroIndex[1]) -> causing out of range
+            upVal = self.state[zeroIndex[0] - 1, zeroIndex[1]]
+            newState = self.state.copy()
+            newState[zeroIndex[0], zeroIndex[1]] = upVal
+            newState[zeroIndex[0] - 1, zeroIndex[1]] = 0
+            return newState, upVal
+    
+    #If moving right is valid, need to get the left value
+    def tryMoveRight(self):
+        zeroIndex = [i[0] for i in np.where(self.state == 0)]
+        if zeroIndex[1] == 0:
+            return False
+        else:
+            leftVal = self.state[zeroIndex[0], zeroIndex[1] - 1]
+            newState = self.state.copy()
+            newState[zeroIndex[0], zeroIndex[1]] = leftVal
+            newState[zeroIndex[0], zeroIndex[1] - 1] = 0
+            return newState, leftVal
+        
+    #If moving left is valid, need to get the right value
+    def tryMoveLeft(self):
+        zeroIndex = [i[0] for i in np.where(self.state == 0)]
+        if zeroIndex[1] == 2:
+            return False
+        else:
+            rightVal = self.state[zeroIndex[0], zeroIndex[1] + 1]
+            newState = self.state.copy()
+            newState[zeroIndex[0], zeroIndex[1]] = rightVal
+            newState[zeroIndex[0], zeroIndex[1] + 1] = 0
+            return newState, rightVal
+        
+    #NOTE: Euclidean distance function from http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
+    def euclidean(index, val, goal):
+        currCol = index % 3
+        currRow = index // 3
+        goalCol = goal.index(val) % 3
+        goalRow = goal.index(val) // 3
+        
+        x = abs(currCol - goalCol)
+        y = abs(currRow - goalRow)
+        
+        return math.sqrt((x * x) + (y * y))     
+    
     #Overriding < in hq
     def __lt__(self, weight2):
         if self.weight < weight2.weight:
@@ -58,19 +126,7 @@ def mapDefaultInput(problem, row1, row2, row3):
     
     print(firstRow)
     print(secondRow)
-    print(thirdRow)
-    
-#NOTE: Euclidean distance function from http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
-def euclidean(index, val, goal):
-    currCol = index % 3
-    currRow = index // 3
-    goalCol = goal.index(val) % 3
-    goalRow = goal.index(val) // 3
-    
-    x = abs(currCol - goalCol)
-    y = abs(currRow - goalRow)
-    
-    return math.sqrt((x * x) + (y * y))
+    print(thirdRow) 
 
 #Main Driver Code
 print("Welcome to 862077930's 8 Puzzle Solver.\n")
@@ -89,10 +145,13 @@ if userChoice == 1:
     defaultPuzzle = rm.randint(0, 2)
     if defaultPuzzle == 0:   
         mapDefaultInput(default1, firstRow, secondRow, thirdRow)
+        initialState = default1
     elif defaultPuzzle == 1:
         mapDefaultInput(default2, firstRow, secondRow, thirdRow)
+        initialState = default2
     elif defaultPuzzle == 2:
         mapDefaultInput(default3, firstRow, secondRow, thirdRow)
+        initialState = default3
 
 #If user input is 2, enter their own puzzle
 if userChoice == 2:
@@ -124,11 +183,23 @@ while True:
 #Uniform Cost Search (Just A* with h(n) = 0)
 if algoChoice == 1:
     print("Uniform")
+    initialArray = np.array(initialState)
+    print(initialArray.reshape(3, 3))
+    
+    goalArray = np.array(goalState)
+    #print(goalArray.reshape(3, 3))
+    
+    root = node(state = initialArray, parent = None, weight = 0, depth = 0, heuristic = 0)
+    root.uniformCostSearch(goalArray)
     
 #A* with the Misplaced Tile Heuristic 
 if algoChoice == 2:
     print("Misplaced")
+    initialArray = np.array(initialState)
+    print(initialArray.reshape(3, 3))
           
 #A* with the Eucledian Distance Heuristic
 if algoChoice == 3:
     print("Eucledian")
+    initialArray = np.array(initialState)
+    print(initialArray.reshape(3, 3))
