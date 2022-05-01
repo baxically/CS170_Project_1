@@ -1,20 +1,35 @@
+#Consulted with Noah Allen (nalle005) for logic help
+
 #Imports
 import random as rm
-import numpy as np     
+import numpy as np  
+import time as t   
+import heapq as hq
+import math 
 
 #Node Class
 class node():
-    def __init__(self, initState, goal, parent, depth):
-        self.initState = initState
-        self.goal = goal
-        self.parent = parent
-        self.depth = depth
+    #Initializer
+    def __init__(self):
+        self.state = []
+        self.parent = None
+        self.weight = 0
+        self.depth = 0
         
-        self.moveUp = None
-        self.moveDown  = None
-        self.moveRight  = None
-        self.moveLeft  = None
-        
+    #Overriding < in hq
+    def __lt__(self, weight2):
+        if self.weight < weight2.weight:
+            return True
+        else:
+            return False
+    
+    #Overriding > in hq
+    def __gt__(self, weight2):
+        if self.weight > weight2.weight:
+            return True
+        else:
+            return False
+                     
 #Variables
 validInputs = [1, 2]
 algoTypes = [1, 2, 3]
@@ -44,6 +59,18 @@ def mapDefaultInput(problem, row1, row2, row3):
     print(firstRow)
     print(secondRow)
     print(thirdRow)
+    
+#NOTE: Euclidean distance function from http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
+def euclidean(index, val, goal):
+    currCol = index % 3
+    currRow = index // 3
+    goalCol = goal.index(val) % 3
+    goalRow = goal.index(val) // 3
+    
+    x = abs(currCol - goalCol)
+    y = abs(currRow - goalRow)
+    
+    return math.sqrt((x * x) + (y * y))
 
 #Main Driver Code
 print("Welcome to 862077930's 8 Puzzle Solver.\n")
@@ -94,8 +121,14 @@ while True:
     else:
         print("Please enter a valid input.")
         
-#Uniform Cost Search
-
+#Uniform Cost Search (Just A* with h(n) = 0)
+if algoChoice == 1:
+    print("Uniform")
+    
 #A* with the Misplaced Tile Heuristic 
-
+if algoChoice == 2:
+    print("Misplaced")
+          
 #A* with the Eucledian Distance Heuristic
+if algoChoice == 3:
+    print("Eucledian")
