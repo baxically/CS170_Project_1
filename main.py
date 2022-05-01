@@ -2,6 +2,19 @@
 import random as rm
 import numpy as np     
 
+#Node Class
+class node():
+    def __init__(self, initState, goal, parent, depth):
+        self.initState = initState
+        self.goal = goal
+        self.parent = parent
+        self.depth = depth
+        
+        self.moveUp = None
+        self.moveDown  = None
+        self.moveRight  = None
+        self.moveLeft  = None
+        
 #Variables
 validInputs = [1, 2]
 algoTypes = [1, 2, 3]
